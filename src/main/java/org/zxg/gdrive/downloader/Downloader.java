@@ -16,9 +16,6 @@
  */
 package org.zxg.gdrive.downloader;
 
-import com.google.api.client.googleapis.media.MediaHttpDownloader;
-import com.google.api.client.googleapis.media.MediaHttpDownloader.DownloadState;
-import com.google.api.client.http.GenericUrl;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files.Get;
 import me.tongfei.progressbar.ProgressBar;
@@ -30,7 +27,7 @@ import java.io.OutputStream;
 
 public class Downloader {
 
-	private static final long STEPS = 1000;
+	private static final long STEPS = 100;
 
 	private String fileId;
 	private File localFile;
@@ -45,14 +42,22 @@ public class Downloader {
 
 	public void run() throws IOException {
 		Get get = this.driveService.files().get(this.fileId);
-		MediaHttpDownloader downloader = get.getMediaHttpDownloader();
 		try (OutputStream output = new FileOutputStream(localFile)) {
 			try (ProgressBar progressBar = new ProgressBar("Downloading...", STEPS)) {
-				while (downloader.getDownloadState() != DownloadState.MEDIA_COMPLETE) {
-					downloader.download(get.buildHttpRequestUrl(),
-							get.getRequestHeaders(), output);
-					progressBar.stepTo((long) (downloader.getProgress() * STEPS));
-				}
+				get.getMediaHttpDownloader().setProgressListener(downloader -> {
+					progressBar.setExtraMessage(String.format("%d bytes downloaded.", downloader.getNumBytesDownloaded()));
+					switch (downloader.getDownloadState()) {
+						case MEDIA_IN_PROGRESS: {
+							progressBar.stepTo((long) (downloader.getProgress() * STEPS));
+						}
+						break;
+						case MEDIA_COMPLETE: {
+							progressBar.stepTo(STEPS);
+						}
+						break;
+					}
+				});
+				get.executeMediaAndDownloadTo(output);
 			}
 		}
 	}
