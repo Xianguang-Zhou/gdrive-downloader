@@ -1,11 +1,11 @@
 target/
 pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
+pom.xml.releasebackup
+pom.xml.versionsbackup
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
-buildNumber.properties
+buildnumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
@@ -20,3 +20,6 @@ buildNumber.properties
 *.iml
 
 *.swp
+
+credentials.json
+tokens/
