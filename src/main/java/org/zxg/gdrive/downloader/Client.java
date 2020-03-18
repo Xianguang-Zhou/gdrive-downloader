@@ -22,6 +22,7 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.GoogleUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.ConnectionFactory;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -32,14 +33,12 @@ import com.google.api.services.drive.DriveScopes;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.net.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class Client {
+public class Client implements ConnectionFactory {
 
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final String TOKENS_DIRECTORY_PATH = "tokens";
@@ -53,10 +52,12 @@ public class Client {
 	private Proxy.Type proxyType;
 	private String proxyHost;
 	private Integer proxyPort;
+	private Proxy proxy;
 
 	private Drive driveService;
 
-	public Client(String applicationName, int localServerPort, Proxy.Type proxyType, String proxyHost, Integer proxyPort) {
+	public Client(String applicationName, int localServerPort, Proxy.Type proxyType, String proxyHost,
+				  Integer proxyPort) {
 		this.applicationName = applicationName;
 		this.localServerPort = localServerPort;
 		this.proxyType = proxyType;
@@ -65,14 +66,17 @@ public class Client {
 	}
 
 	public void login() throws GeneralSecurityException, IOException {
-		NetHttpTransport.Builder httpTransportBuilder = new NetHttpTransport.Builder();
 		if (Proxy.Type.DIRECT != this.proxyType) {
-			httpTransportBuilder.setProxy(new Proxy(this.proxyType,
-					new InetSocketAddress(InetAddress.getByName(this.proxyHost), this.proxyPort)));
+			this.proxy = new Proxy(this.proxyType,
+					new InetSocketAddress(
+							InetAddress.getByName(this.proxyHost),
+							this.proxyPort));
 		}
-		NetHttpTransport httpTransport = httpTransportBuilder.trustCertificates(GoogleUtils.getCertificateTrustStore())
-				.build();
-		this.driveService = new Drive.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport))
+		NetHttpTransport httpTransport = new NetHttpTransport.Builder()
+				.trustCertificates(GoogleUtils.getCertificateTrustStore())
+				.setConnectionFactory(this).build();
+		this.driveService = new Drive.Builder(httpTransport, JSON_FACTORY,
+				getCredentials(httpTransport))
 				.setApplicationName(this.applicationName).build();
 	}
 
@@ -90,5 +94,14 @@ public class Client {
 			LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(localServerPort).build();
 			return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 		}
+	}
+
+	@Override
+	public HttpURLConnection openConnection(URL url) throws IOException, ClassCastException {
+		HttpURLConnection connection = (HttpURLConnection) (
+				null != this.proxy
+						? url.openConnection(this.proxy)
+						: url.openConnection());
+		return connection;
 	}
 }
