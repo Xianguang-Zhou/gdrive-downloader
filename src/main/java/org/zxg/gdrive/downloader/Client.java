@@ -54,15 +54,20 @@ public class Client implements ConnectionFactory {
 	private Integer proxyPort;
 	private Proxy proxy;
 
+	private int readTimeout;
+	private int connectTimeout;
+
 	private Drive driveService;
 
 	public Client(String applicationName, int localServerPort, Proxy.Type proxyType, String proxyHost,
-				  Integer proxyPort) {
+				  Integer proxyPort, int readTimeout, int connectTimeout) {
 		this.applicationName = applicationName;
 		this.localServerPort = localServerPort;
 		this.proxyType = proxyType;
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
+		this.readTimeout = readTimeout;
+		this.connectTimeout = connectTimeout;
 	}
 
 	public void login() throws GeneralSecurityException, IOException {
@@ -102,6 +107,8 @@ public class Client implements ConnectionFactory {
 				null != this.proxy
 						? url.openConnection(this.proxy)
 						: url.openConnection());
+		connection.setReadTimeout(this.readTimeout);
+		connection.setConnectTimeout(this.connectTimeout);
 		return connection;
 	}
 }

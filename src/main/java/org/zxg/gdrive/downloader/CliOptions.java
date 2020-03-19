@@ -52,6 +52,12 @@ public class CliOptions {
 	@Option(names = {"-lf", "--localFile"}, required = true)
 	private File localFile;
 
+	@Option(names = {"-rt", "--readTimeout"}, defaultValue = "0")
+	private Integer readTimeout;
+
+	@Option(names = {"-ct", "--connectTimeout"}, defaultValue = "0")
+	private Integer connectTimeout;
+
 	@Option(names = {"--debug"}, description = "Debug flag.")
 	private boolean debug = false;
 
@@ -113,6 +119,22 @@ public class CliOptions {
 
 	public void setLocalFile(File localFile) {
 		this.localFile = localFile;
+	}
+
+	public Integer getReadTimeout() {
+		return readTimeout;
+	}
+
+	public void setReadTimeout(Integer readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+
+	public Integer getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public void setConnectTimeout(Integer connectTimeout) {
+		this.connectTimeout = connectTimeout;
 	}
 
 	public boolean isDebug() {

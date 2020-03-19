@@ -51,7 +51,9 @@ public class Main {
 					cliOptions.getLocalServerPort(),
 					cliOptions.getProxyType(),
 					cliOptions.getProxyHost(),
-					cliOptions.getProxyPort());
+					cliOptions.getProxyPort(),
+					cliOptions.getReadTimeout(),
+					cliOptions.getConnectTimeout());
 			try {
 				client.login();
 				Downloader downloader = new Downloader(client,
