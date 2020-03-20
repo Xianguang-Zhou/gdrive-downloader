@@ -52,6 +52,9 @@ public class CliOptions {
 	@Option(names = {"-lf", "--localFile"}, required = true)
 	private File localFile;
 
+	@Option(names = {"-c", "--continue"})
+	private boolean resume = false;
+
 	@Option(names = {"-rt", "--readTimeout"}, defaultValue = "0")
 	private Integer readTimeout;
 
@@ -119,6 +122,14 @@ public class CliOptions {
 
 	public void setLocalFile(File localFile) {
 		this.localFile = localFile;
+	}
+
+	public boolean isResume() {
+		return resume;
+	}
+
+	public void setResume(boolean resume) {
+		this.resume = resume;
 	}
 
 	public Integer getReadTimeout() {

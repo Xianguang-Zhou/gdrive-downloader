@@ -32,18 +32,25 @@ public class Downloader {
 	private String fileId;
 	private File localFile;
 
+	private boolean resume;
+
 	private Drive driveService;
 
-	public Downloader(Client client, String fileId, File localFile) {
+	public Downloader(Client client, String fileId, File localFile,
+					  boolean resume) {
 		this.fileId = fileId;
 		this.localFile = localFile;
 		this.driveService = client.getDriveService();
+		this.resume = resume;
 	}
 
 	public void run() throws IOException {
 		Get get = this.driveService.files().get(this.fileId);
-		try (OutputStream output = new FileOutputStream(localFile)) {
+		try (OutputStream output = new FileOutputStream(localFile, this.resume)) {
 			try (ProgressBar progressBar = new ProgressBar("Downloading...", STEPS)) {
+				if (this.resume) {
+					get.getMediaHttpDownloader().setBytesDownloaded(localFile.length());
+				}
 				get.getMediaHttpDownloader().setProgressListener(downloader -> {
 					progressBar.setExtraMessage(String.format("%d bytes downloaded.", downloader.getNumBytesDownloaded()));
 					switch (downloader.getDownloadState()) {

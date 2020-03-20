@@ -57,7 +57,8 @@ public class Main {
 			try {
 				client.login();
 				Downloader downloader = new Downloader(client,
-						cliOptions.getFileId(), cliOptions.getLocalFile());
+						cliOptions.getFileId(), cliOptions.getLocalFile(),
+						cliOptions.isResume());
 				downloader.run();
 			} catch (IOException | GeneralSecurityException ex) {
 				logger.error(ex.getMessage(), ex);
