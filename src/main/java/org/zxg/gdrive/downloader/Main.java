@@ -53,7 +53,9 @@ public class Main {
 					cliOptions.getProxyHost(),
 					cliOptions.getProxyPort(),
 					cliOptions.getReadTimeout(),
-					cliOptions.getConnectTimeout());
+					cliOptions.getConnectTimeout(),
+					cliOptions.getTokensDir(),
+					cliOptions.getCredentialsFile());
 			try {
 				client.login();
 				Downloader downloader = new Downloader(client,

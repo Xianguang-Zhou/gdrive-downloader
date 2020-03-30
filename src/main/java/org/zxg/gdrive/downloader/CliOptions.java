@@ -61,6 +61,12 @@ public class CliOptions {
 	@Option(names = {"-ct", "--connectTimeout"}, defaultValue = "0")
 	private Integer connectTimeout;
 
+	@Option(names = {"-td", "--tokensDir"}, defaultValue = "tokens")
+	private File tokensDir;
+
+	@Option(names = {"-cf", "--credentialsFile"}, defaultValue = "credentials.json")
+	private File credentialsFile;
+
 	@Option(names = {"--debug"}, description = "Debug flag.")
 	private boolean debug = false;
 
@@ -146,6 +152,22 @@ public class CliOptions {
 
 	public void setConnectTimeout(Integer connectTimeout) {
 		this.connectTimeout = connectTimeout;
+	}
+
+	public File getTokensDir() {
+		return tokensDir;
+	}
+
+	public void setTokensDir(File tokensDir) {
+		this.tokensDir = tokensDir;
+	}
+
+	public File getCredentialsFile() {
+		return credentialsFile;
+	}
+
+	public void setCredentialsFile(File credentialsFile) {
+		this.credentialsFile = credentialsFile;
 	}
 
 	public boolean isDebug() {

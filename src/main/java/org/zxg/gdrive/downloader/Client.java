@@ -30,6 +30,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -41,10 +42,8 @@ import java.util.List;
 public class Client implements ConnectionFactory {
 
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
 	private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_READONLY);
-	private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 
 	private String applicationName;
 	private int localServerPort;
@@ -57,10 +56,13 @@ public class Client implements ConnectionFactory {
 	private int readTimeout;
 	private int connectTimeout;
 
+	private File tokensDir;
+	private File credentialsFile;
+
 	private Drive driveService;
 
 	public Client(String applicationName, int localServerPort, Proxy.Type proxyType, String proxyHost,
-				  Integer proxyPort, int readTimeout, int connectTimeout) {
+				  Integer proxyPort, int readTimeout, int connectTimeout, File tokensDir, File credentialsFile) {
 		this.applicationName = applicationName;
 		this.localServerPort = localServerPort;
 		this.proxyType = proxyType;
@@ -68,6 +70,8 @@ public class Client implements ConnectionFactory {
 		this.proxyPort = proxyPort;
 		this.readTimeout = readTimeout;
 		this.connectTimeout = connectTimeout;
+		this.tokensDir = tokensDir;
+		this.credentialsFile = credentialsFile;
 	}
 
 	public void login() throws GeneralSecurityException, IOException {
@@ -90,11 +94,11 @@ public class Client implements ConnectionFactory {
 	}
 
 	private Credential getCredentials(NetHttpTransport httpTransport) throws IOException {
-		try (Reader reader = new FileReader(CREDENTIALS_FILE_PATH)) {
+		try (Reader reader = new FileReader(this.credentialsFile)) {
 			GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, reader);
 			GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY,
 					clientSecrets, SCOPES)
-					.setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+					.setDataStoreFactory(new FileDataStoreFactory(this.tokensDir))
 					.setAccessType("offline").build();
 			LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(localServerPort).build();
 			return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");

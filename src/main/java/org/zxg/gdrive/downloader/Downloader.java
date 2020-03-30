@@ -16,6 +16,7 @@
  */
 package org.zxg.gdrive.downloader;
 
+import com.google.api.client.googleapis.media.MediaHttpDownloader;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files.Get;
 import me.tongfei.progressbar.ProgressBar;
@@ -48,10 +49,13 @@ public class Downloader {
 		Get get = this.driveService.files().get(this.fileId);
 		try (OutputStream output = new FileOutputStream(localFile, this.resume)) {
 			try (ProgressBar progressBar = new ProgressBar("Downloading...", STEPS)) {
+				MediaHttpDownloader mediaHttpDownloader = get.getMediaHttpDownloader();
 				if (this.resume) {
-					get.getMediaHttpDownloader().setBytesDownloaded(localFile.length());
+					mediaHttpDownloader.setBytesDownloaded(localFile.length());
 				}
-				get.getMediaHttpDownloader().setProgressListener(downloader -> {
+				progressBar.setExtraMessage(String.format("%d bytes downloaded.", mediaHttpDownloader.getNumBytesDownloaded()));
+				progressBar.stepTo((long) (mediaHttpDownloader.getProgress() * STEPS));
+				mediaHttpDownloader.setProgressListener(downloader -> {
 					progressBar.setExtraMessage(String.format("%d bytes downloaded.", downloader.getNumBytesDownloaded()));
 					switch (downloader.getDownloadState()) {
 						case MEDIA_IN_PROGRESS: {
