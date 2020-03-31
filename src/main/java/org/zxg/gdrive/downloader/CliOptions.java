@@ -24,7 +24,6 @@ import java.net.Proxy;
 
 @Command(showDefaultValues = true,
 		sortOptions = false,
-		name = "java -jar gdrive-downloader.jar",
 		footer = "(c) Copyright Xianguang Zhou (xianguang.zhou@outlook.com) 2020. All rights reserved.",
 		description = "Google Drive downloader.")
 public class CliOptions {
@@ -73,6 +72,9 @@ public class CliOptions {
 	@Option(names = {"-h", "--help"}, usageHelp = true,
 			description = "Display help information.")
 	private boolean help = false;
+
+	@Option(names = {"-cn", "--commandName"}, defaultValue = "java -jar gdrive-downloader.jar")
+	private String commandName;
 
 	public String getApplicationName() {
 		return applicationName;
@@ -184,5 +186,13 @@ public class CliOptions {
 
 	public void setHelp(boolean help) {
 		this.help = help;
+	}
+
+	public String getCommandName() {
+		return commandName;
+	}
+
+	public void setCommandName(String commandName) {
+		this.commandName = commandName;
 	}
 }

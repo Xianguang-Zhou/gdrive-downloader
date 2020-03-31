@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
 
@@ -29,23 +30,23 @@ public class Main {
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
-		CliOptions cliOptions;
+		CliOptions cliOptions = new CliOptions();
 		try {
-			cliOptions = CommandLine.populateCommand(new CliOptions(), args);
+			CommandLine.populateCommand(cliOptions, args);
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
-			CommandLine.usage(new CliOptions(), System.err);
+			printUsage(cliOptions, System.err);
 			System.exit(1);
 			return;
 		}
 
 		if (cliOptions.isHelp()) {
-			CommandLine.usage(new CliOptions(), System.out);
+			printUsage(cliOptions, System.out);
 			return;
 		} else {
 			if (Proxy.Type.DIRECT != cliOptions.getProxyType()) {
-				checkRequiredOption("proxyHost", cliOptions.getProxyHost());
-				checkRequiredOption("proxyPort", cliOptions.getProxyPort());
+				checkRequiredOption("proxyHost", cliOptions.getProxyHost(), cliOptions);
+				checkRequiredOption("proxyPort", cliOptions.getProxyPort(), cliOptions);
 			}
 			Client client = new Client(cliOptions.getApplicationName(),
 					cliOptions.getLocalServerPort(),
@@ -69,11 +70,16 @@ public class Main {
 		}
 	}
 
-	private static void checkRequiredOption(String name, Object value) {
+	private static void checkRequiredOption(String name, Object value, CliOptions cliOptions) {
 		if (null == value) {
 			System.err.println(String.format("Missing required option '--%s=<%s>'", name, name));
-			CommandLine.usage(new CliOptions(), System.err);
+			printUsage(cliOptions, System.err);
 			System.exit(1);
 		}
+	}
+
+	private static void printUsage(CliOptions cliOptions, PrintStream out) {
+		CommandLine.usage(new CommandLine(cliOptions).setCommandName(
+				cliOptions.getCommandName()), out);
 	}
 }
