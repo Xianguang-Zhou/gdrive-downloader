@@ -73,8 +73,8 @@ public class CliOptions {
 			description = "Display help information.")
 	private boolean help = false;
 
-	@Option(names = {"-cn", "--commandName"}, defaultValue = "java -jar gdrive-downloader.jar")
-	private String commandName;
+	@Option(names = {"-cn", "--commandName"})
+	private String commandName = "java -jar gdrive-downloader.jar";
 
 	public String getApplicationName() {
 		return applicationName;

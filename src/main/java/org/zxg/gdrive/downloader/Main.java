@@ -79,7 +79,7 @@ public class Main {
 	}
 
 	private static void printUsage(CliOptions cliOptions, PrintStream out) {
-		CommandLine.usage(new CommandLine(cliOptions).setCommandName(
+		CommandLine.usage(new CommandLine(new CliOptions()).setCommandName(
 				cliOptions.getCommandName()), out);
 	}
 }
