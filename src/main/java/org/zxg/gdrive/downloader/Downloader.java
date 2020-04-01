@@ -35,14 +35,17 @@ public class Downloader {
 
 	private boolean resume;
 
+	private int chunkSize;
+
 	private Drive driveService;
 
 	public Downloader(Client client, String fileId, File localFile,
-					  boolean resume) {
+					  boolean resume, int chunkSize) {
 		this.fileId = fileId;
 		this.localFile = localFile;
 		this.driveService = client.getDriveService();
 		this.resume = resume;
+		this.chunkSize = chunkSize;
 	}
 
 	public void run() throws IOException {
@@ -53,6 +56,7 @@ public class Downloader {
 				if (this.resume) {
 					mediaHttpDownloader.setBytesDownloaded(localFile.length());
 				}
+				mediaHttpDownloader.setChunkSize(this.chunkSize);
 				progressBar.setExtraMessage(String.format("%d bytes downloaded.", mediaHttpDownloader.getNumBytesDownloaded()));
 				progressBar.stepTo((long) (mediaHttpDownloader.getProgress() * STEPS));
 				mediaHttpDownloader.setProgressListener(downloader -> {

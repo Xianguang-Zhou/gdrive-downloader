@@ -16,6 +16,7 @@
  */
 package org.zxg.gdrive.downloader;
 
+import com.google.api.client.googleapis.media.MediaHttpDownloader;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -59,6 +60,9 @@ public class CliOptions {
 
 	@Option(names = {"-ct", "--connectTimeout"}, defaultValue = "0")
 	private Integer connectTimeout;
+
+	@Option(names = {"-cs", "--chunkSize"})
+	private int chunkSize = MediaHttpDownloader.MAXIMUM_CHUNK_SIZE;
 
 	@Option(names = {"-td", "--tokensDir"}, defaultValue = "tokens")
 	private File tokensDir;
@@ -154,6 +158,14 @@ public class CliOptions {
 
 	public void setConnectTimeout(Integer connectTimeout) {
 		this.connectTimeout = connectTimeout;
+	}
+
+	public int getChunkSize() {
+		return chunkSize;
+	}
+
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
 	}
 
 	public File getTokensDir() {
